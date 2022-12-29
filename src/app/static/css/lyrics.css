@@ -1,0 +1,58 @@
+#lyricsEditor,
+#lineCounter {
+    font-family: lucida console, courier new, courier, monospace;
+    margin: 0;
+    padding: 10px 0;
+    height: 75vh;
+    border-radius: 0;
+    resize: none;
+    outline: none;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+#lineCounter:focus-visible,
+#lyricsEditor:focus-visible {
+    outline: none;
+}
+
+#lineCounter {
+    border-color: transparent;
+    overflow-y: hidden;
+    text-align: right;
+    box-shadow: none;
+    color: #707070;
+    background-color: #d8d8d8;
+    position: absolute;
+    /* Determine appearance of line counter */
+    background-color: #3E3D32;
+    border-color: #3E3D32;
+    color: #928869;
+    width: 5%;
+    height: 5000px;
+}
+
+#lyricsEditor {
+    padding-left: calc(3.5rem + 5px);
+    /* Determine appearance of lyrics editor */
+    background-color: #272822;
+    border-color: #272822;
+    color: #ffffff;
+    width: 90%;
+    height: 5000px;
+}
+
+#containerDiv {
+    display: flex;
+}
+
+#bigContainer {
+    max-width: 800px;
+    margin: auto;
+    margin-top: 1em;
+    margin-bottom: 1em;
+    padding: 1em;
+    border-radius: 1%;
+    border: 1px solid;
+}
