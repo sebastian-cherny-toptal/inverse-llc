@@ -35,7 +35,7 @@ urlpatterns = [
     path('api/user_info/', views_user.user_info),
     path('api/token/', CustomAuthToken.as_view()),
     path('favicon.ico/', favicon_view),
-    path('', views.login_view),
+    path('', views.lyrics_view),
     path('login/', views.login_view),
     path('lyrics/', views.lyrics_view),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
