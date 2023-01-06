@@ -3,7 +3,8 @@
 #rightLineCounter {
     font-family: lucida console, courier new, courier, monospace;
     margin: 0;
-    padding: 10px 0;
+    padding-top: 10px;
+    padding-bottom: 0px;
     height: 75vh;
     border-radius: 0;
     resize: none;
@@ -32,7 +33,7 @@
     border-color: #3E3D32;
     color: #928869;
     width: 4%;
-    height: 5000px;
+    height: 500px;
 }
 
 #lyricsEditor {
@@ -42,7 +43,7 @@
     border-color: #272822;
     color: #ffffff;
     width: 90%;
-    height: 5000px;
+    height: 500px;
 }
 
 #containerDiv {

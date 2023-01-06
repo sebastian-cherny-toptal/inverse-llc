@@ -454,6 +454,9 @@ function App() {
 
       const buttonsDiv = document.createElement('div')
       buttonsDiv.style.display = 'flex';
+      buttonsDiv.style.height = '16px';
+      buttonsDiv.style.minHeight = '16px';
+      buttonsDiv.style.maxHeight = '16px';
       buttonsDiv.appendChild(getDownArrowButton(i));
       buttonsDiv.appendChild(getUncountButton(i));
       arrowsDiv.appendChild(buttonsDiv);
@@ -483,7 +486,7 @@ function App() {
     const btn = document.createElement('button');
     btn.textContent = (allParagraphs[paragraphNum].isCollapsed === false ? '^ ' : 'v ') + paragraphNum;
     // btn.style.marginTop = '18px';
-    btn.style.height = '20px';
+    //btn.style.height = '20px';
     btn.style.color = '#ffffff';
     btn.style.backgroundColor = '#000000';
     const this_btn_id = 'arrow_btn_' + paragraphNum;
@@ -508,7 +511,7 @@ function App() {
     const btn = document.createElement('button');
     btn.textContent = (allParagraphs[paragraphNum].isCounted ? 'uncount ' : 'count ') + paragraphNum;
     // btn.style.marginTop = '18px';
-    btn.style.height = '20px';
+    //btn.style.height = '20px';
     btn.style.color = '#ffffff';
     btn.style.backgroundColor = '#000000';
     const this_btn_id = 'is_counted_btn_' + paragraphNum;
@@ -572,6 +575,18 @@ function App() {
 
       arrowsDiv.scrollTop = lyricsEditor.scrollTop;
       arrowsDiv.scrollLeft = lyricsEditor.scrollLeft;
+
+    });
+
+    leftLineCounter.addEventListener('scroll', () => {
+      lyricsEditor.scrollTop = leftLineCounter.scrollTop;
+      lyricsEditor.scrollLeft = leftLineCounter.scrollLeft;
+
+      rightLineCounter.scrollTop = leftLineCounter.scrollTop;
+      rightLineCounter.scrollLeft = leftLineCounter.scrollLeft;
+
+      arrowsDiv.scrollTop = leftLineCounter.scrollTop;
+      arrowsDiv.scrollLeft = leftLineCounter.scrollLeft;
 
     });
 
