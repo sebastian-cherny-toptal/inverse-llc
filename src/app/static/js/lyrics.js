@@ -3,6 +3,9 @@ const e = React.createElement;
 
 
 function App() {
+
+  const [userHeaderDiv, setUserHeaderDiv] = React.useState(null);
+
   var loggedInUsername = null;
   var userInfo = null;
   var autosaveInterval = null;
@@ -18,12 +21,22 @@ function App() {
     //setAllColections(data.data);
   };
 
-  if (loggedInUsername === null) {
-    getLoggedInUsername((username) => { loggedInUsername = username });
-  }
-  if (userInfo === null) {
-    get_user_data_api((data) => userInfo = data.data);
-  }
+  //var userHeaderDiv = null;
+  React.useEffect(() => {
+    if (loggedInUsername === null) {
+      getLoggedInUsername((username) => { loggedInUsername = username });
+    }
+    if (userInfo === null) {
+      get_user_data_api((data) => {
+        userInfo = data.data;
+        setUserHeaderDiv(<UserHeader loggedInUsername={loggedInUsername} redirectWhenLoggedOut={true}
+          is_admin={userInfo && userInfo.is_admin} pageLanguage='en'
+        />);
+        console.log(userHeaderDiv)
+        //userHeaderDiv.render();
+      });
+    }
+  }, []);
   //getPageLanguage((lang => { setPageLanguage(lang); }));
   //get_all_collections_api(success, (text) => { console.log("Error: ", text) });
 
@@ -754,10 +767,7 @@ function App() {
 
   return (
     <div>
-      <UserHeader loggedInUsername={loggedInUsername} redirectWhenLoggedOut={true}
-        is_admin={userInfo && userInfo.is_admin} pageLanguage='en'
-
-      />
+      {userHeaderDiv}
       <div style={{
         maxWidth: "800px", margin: "auto", marginTop: "1em", marginBottom: "1em",
         padding: "1em", borderRadius: "1%", border: "1px solid"
