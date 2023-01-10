@@ -87,7 +87,7 @@ DATABASE_FROM_FILE = dj_database_url.parse(
     os.environ['DATABASE_URL'], conn_max_age=600)
 
 DATABASES = {
-    # "default": DATABASE_FROM_FILE
+    "default": DATABASE_FROM_FILE
 }
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
