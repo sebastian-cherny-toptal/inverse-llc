@@ -22,7 +22,6 @@ function App() {
     getLoggedInUsername((username) => { loggedInUsername = username });
   }
   if (userInfo === null) {
-
     get_user_data_api((data) => userInfo = data.data);
   }
   //getPageLanguage((lang => { setPageLanguage(lang); }));
@@ -784,7 +783,7 @@ function App() {
           <label>Autosaved:
           </label>
           <label id='lastAutoSaveLabel'>
-            disabled
+            disabled until saved
           </label>
           <br />
           <label>Shortcut: (Command or Ctrl) + J -{'>'} selected paragraphs go out of the count</label>
