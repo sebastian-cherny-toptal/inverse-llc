@@ -10,7 +10,7 @@ function App() {
   var autosaveInterval = null;
   var lyricsId = null;
   const lyricsIdFromUrl = getLyricsId();
-  console.log(lyricsIdFromUrl);
+
   if (lyricsIdFromUrl.length) {
     lyricsId = lyricsIdFromUrl;
   }
@@ -79,7 +79,8 @@ function App() {
     return paragraphsToDisplay.join('');
   }
 
-  const setCompleteTextFromParagraphs = () => {
+  const setCompleteTextFromParagraphs = (callSource) => {
+    console.log(callSource);
     lyricsEditor.value = getTextFromParagraphs();
   }
 
@@ -171,10 +172,8 @@ function App() {
       */
 
   const processEvent = (ev) => {
-    console.log('processing event with ');
-    console.log(allParagraphs);
+    return;
     const allDisplayedLength = getTotalLengthDisplayed();
-    console.log('total length: ' + allDisplayedLength);
     if (ev[0] === 'typing') {
       // typing ONE character
       if (allParagraphs.length > 0) {
@@ -418,7 +417,7 @@ function App() {
       }
     }
     console.log(allParagraphs);
-    setCompleteTextFromParagraphs();
+    setCompleteTextFromParagraphs('source1');
     lyricsEditor.selectionStart = ev[1] + 1;
     lyricsEditor.selectionEnd = ev[1] + 1;
   }
@@ -501,7 +500,7 @@ function App() {
         allParagraphs[paragraphNum].isCollapsed = false;
         document.getElementById(this_btn_id).textContent = '^ ' + paragraphNum;
       }
-      setCompleteTextFromParagraphs();
+      setCompleteTextFromParagraphs('source2');
       setLineNumbersAndButtons();
     }
     return btn;
@@ -516,7 +515,12 @@ function App() {
       allParagraphs[paragraphNum].isCounted = false;
       // document.getElementById(this_btn_id).textContent = 'count ' + paragraphNum;
     }
-    setCompleteTextFromParagraphs();
+    const ss = lyricsEditor.selectionStart;
+    const se = lyricsEditor.selectionEnd;
+    setCompleteTextFromParagraphs('source3');
+    lyricsEditor.setSelectionRange(ss, se);
+    // lyricsEditor.selectionStart = ss;
+    // lyricsEditor.selectionEnd = se;
     setLineNumbersAndButtons();
   }
 
@@ -564,22 +568,26 @@ function App() {
     });
 
     lyricsEditor.addEventListener('select', (e) => {
-
       const selectionStart = e.target.selectionStart;
       const selectionEnd = e.target.selectionEnd;
       var movingAfterUncollapsing = 0;
+      var oneCollapsed = false;
       for (var x = selectionStart; x < selectionEnd; x++) {
         const [affectedParagraphIndex, positionInParagraph] = getParagraphIndexAndPositionInParagraph(x);
         if (allParagraphs[affectedParagraphIndex].isCollapsed) {
+          oneCollapsed = true;
           allParagraphs[affectedParagraphIndex].isCollapsed = false;
           movingAfterUncollapsing += allParagraphs[affectedParagraphIndex].text.length -
             allParagraphs[affectedParagraphIndex].text.trimLeft().split('\n')[0].length - 2;
         }
       }
-      setCompleteTextFromParagraphs();
-      //console.log(selectionStart, selectionEnd);
-      lyricsEditor.selectionStart = selectionStart;
-      lyricsEditor.selectionEnd = selectionEnd + movingAfterUncollapsing;
+      if (oneCollapsed) {
+        setCompleteTextFromParagraphs('source4');
+        setLineNumbersAndButtons();
+        lyricsEditor.setSelectionRange(selectionStart, selectionEnd + movingAfterUncollapsing);
+
+      } else {
+      }
 
     });
 
@@ -628,7 +636,6 @@ function App() {
       } else if (charToAdd === 'Tab') {
         charToAdd = '\t';
       }
-      console.log(e);
       var textEvent;
       var prevented = false;
       if (isCtrlPressed) {
@@ -636,8 +643,6 @@ function App() {
           alert('No pasting allowed');
           e.preventDefault();
         } else if (charToAdd.toLocaleLowerCase() === 'j') {
-          console.log(getParagraphIndexAndPositionInParagraph(selectionStart));
-          console.log(getParagraphIndexAndPositionInParagraph(selectionEnd));
           for (var idx = getParagraphIndexAndPositionInParagraph(selectionStart)[0];
             idx <= getParagraphIndexAndPositionInParagraph(selectionEnd)[0];
             idx++) {
@@ -702,9 +707,6 @@ function App() {
         }
       } else if (previousStart === previousEnd) {
         const [idx, pos] = getParagraphIndexAndPositionInParagraph(previousStart, newParagraphs);
-        console.log('index ' + idx);
-        console.log('pos ' + pos);
-        console.log(previousStart);
         for (var i = 0; i < idx; i++) {
           newParagraphs[i].isCounted = allParagraphs[i].isCounted;
           if (allParagraphs[i].isCollapsed) {
@@ -721,11 +723,40 @@ function App() {
             prevCount = i;
             newCount = i - 1;
           }
-          console.log('prev ' + prevCount + ' matched with ' + newCount);
           newParagraphs[newCount].isCounted = allParagraphs[prevCount].isCounted;
           if (allParagraphs[prevCount].isCollapsed) {
             newParagraphs[newCount].isCollapsed = allParagraphs[prevCount].isCollapsed;
             newParagraphs[newCount].text = allParagraphs[prevCount].text;
+          }
+        }
+      } else {
+        // removed possibly more than one paragraph
+        const [startIdx, spos] = getParagraphIndexAndPositionInParagraph(previousStart, newParagraphs);
+        const [endIdx, epos] = getParagraphIndexAndPositionInParagraph(previousEnd, newParagraphs);
+        for (var i = 0; i < startIdx; i++) {
+          newParagraphs[i].isCounted = allParagraphs[i].isCounted;
+          if (allParagraphs[i].isCollapsed) {
+            newParagraphs[i].isCollapsed = allParagraphs[i].isCollapsed;
+            newParagraphs[i].text = allParagraphs[i].text;
+          }
+        }
+        for (var i = endIdx + 1; i < Math.max(newParagraphs.length, allParagraphs.length); i++) {
+          var prevCount, newCount;
+          if (allParagraphs.length > newParagraphs.length) {
+            newCount = i - (endIdx - startIdx) -
+              (newParagraphs.length - allParagraphs.length === endIdx - startIdx ? 0 : 1);
+            prevCount = i;
+          } else {
+            // should never happend
+            alert('There was an error; report or avoid editing with many letters selected.');
+          }
+          if (newCount < newParagraphs.length) {
+            console.log('matching from before ' + prevCount + ' to ' + newCount);
+            newParagraphs[newCount].isCounted = allParagraphs[prevCount].isCounted;
+            if (allParagraphs[prevCount].isCollapsed) {
+              newParagraphs[newCount].isCollapsed = allParagraphs[prevCount].isCollapsed;
+              newParagraphs[newCount].text = allParagraphs[prevCount].text;
+            }
           }
         }
       }
@@ -749,7 +780,7 @@ function App() {
   if (lyricsIdFromUrl) {
     get_lyric_data_api(lyricsIdFromUrl, (data) => {
       allParagraphs = data.data.allParagraphs;
-      setCompleteTextFromParagraphs();
+      setCompleteTextFromParagraphs('source5');
       setLineNumbersAndButtons();
     })
   }
