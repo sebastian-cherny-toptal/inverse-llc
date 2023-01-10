@@ -788,7 +788,7 @@ function App() {
           <br />
           <label>Shortcut: (Command or Ctrl) + J -{'>'} selected paragraphs go out of the count</label>
           <br />
-          <a id='lyricsLink' style={{ display: 'none' }}>Go to this song</a>
+          <a target='blank' id='lyricsLink' style={{ display: 'none' }}>Go to this song</a>
         </div>
 
       </div>

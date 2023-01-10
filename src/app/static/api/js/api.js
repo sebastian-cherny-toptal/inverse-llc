@@ -111,10 +111,6 @@ const resend_email_api = async (email, success) => {
 };
 
 const store_lyric_api = async (allParagraphs, lyricsId, success, fail) => {
-  success({
-    'data': { 'id': 123 }
-  });
-  return;
   const token = await localStorage.getItem("userToken");
   if (token === null) {
     console.log("No credentials found, redirecting...");
