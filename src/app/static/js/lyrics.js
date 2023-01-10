@@ -4,12 +4,10 @@ const e = React.createElement;
 
 function App() {
 
-  const [userHeaderDiv, setUserHeaderDiv] = React.useState(null);
+  const [loggedInUsername, setLoggedInUsername] = React.useState(null);
+  const [userInfo, setUserInfo] = React.useState(null);
 
-  var loggedInUsername = null;
-  var userInfo = null;
   var autosaveInterval = null;
-
   var lyricsId = null;
   const lyricsIdFromUrl = getLyricsId();
   console.log(lyricsIdFromUrl);
@@ -23,19 +21,11 @@ function App() {
 
   //var userHeaderDiv = null;
   React.useEffect(() => {
-    if (loggedInUsername === null) {
-      getLoggedInUsername((username) => { loggedInUsername = username });
-    }
-    if (userInfo === null) {
-      get_user_data_api((data) => {
-        userInfo = data.data;
-        setUserHeaderDiv(<UserHeader loggedInUsername={loggedInUsername} redirectWhenLoggedOut={true}
-          is_admin={userInfo && userInfo.is_admin} pageLanguage='en'
-        />);
-        console.log(userHeaderDiv)
-        //userHeaderDiv.render();
-      });
-    }
+    getLoggedInUsername((username) => { setLoggedInUsername(username); });
+    get_user_data_api((data) => {
+      setUserInfo(data.data);
+      //userHeaderDiv.render();
+    });
   }, []);
   //getPageLanguage((lang => { setPageLanguage(lang); }));
   //get_all_collections_api(success, (text) => { console.log("Error: ", text) });
@@ -148,7 +138,7 @@ function App() {
     + getParagraphsFromUncollapsedText
     + getParagraphIndexAndPositionInParagraph
     + 
-
+  
   Adding char:
     * At the beginning:
       * Enter:
@@ -176,8 +166,8 @@ function App() {
         * Before non-enter: Split paragraph in two
         * Before 1 or more enters: Just add to paragraph
       * After 2 or more enters: Just add
-
   
+   
       */
 
   const processEvent = (ev) => {
@@ -387,7 +377,7 @@ function App() {
             // typed at the end of text
             // either add new paragraph with this char, or just add new char to last paragraph
           } else {
-
+  
             if (ev[2] === '\n' && ev[1] > 0 && p[0][(ev[1] - charsPassed) - 1] === '\n') {
               var newParagraphs = [];
               newParagraphs = allParagraphs.slice(0, affectedParagraphIndex - 1);
@@ -767,7 +757,13 @@ function App() {
 
   return (
     <div>
-      {userHeaderDiv}
+      <UserHeader
+        loggedInUsername={loggedInUsername} setLoggedInUsername={setLoggedInUsername}
+        redirectWhenLoggedOut={true}
+        viewName="lyrics"
+        pageLanguage={'en'}
+        is_admin={userInfo != null && userInfo.is_admin}
+      />
       <div style={{
         maxWidth: "800px", margin: "auto", marginTop: "1em", marginBottom: "1em",
         padding: "1em", borderRadius: "1%", border: "1px solid"

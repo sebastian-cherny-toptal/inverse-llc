@@ -93,7 +93,7 @@ function App() {
           <div style={{ margin: "1em" }}>
             <button type="submit" style={{
               marginLeft: "inherit", marginTop: "inherit",
-              backgroundColor: "#434575", borderColor: "#434575"
+              backgroundColor: "#000000", borderColor: "#000000"
             }} className="btn btn-primary" onClick={tryRegister}>Register</button>
           </div>
           <div style={{ margin: "1em" }}>

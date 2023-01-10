@@ -80,7 +80,7 @@ function App() {
             </div>
           }
           <div style={{ margin: "1em" }}>
-            <button type="submit" style={{ marginTop: "inherit", backgroundColor: "#434575", borderColor: "#434575" }} className="btn btn-primary" onClick={tryLogin}>Login</button>
+            <button type="submit" style={{ marginTop: "inherit", backgroundColor: "#000000", borderColor: "#000000" }} className="btn btn-primary" onClick={tryLogin}>Login</button>
           </div>
           <div style={{ margin: "1em" }}>
             <label style={{ marginTop: "inherit" }}>
