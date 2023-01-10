@@ -110,23 +110,23 @@ const resend_email_api = async (email, success) => {
   }
 };
 
-
-const do_process_csv_file_content = async (json_content, success, fail) => {
+const store_lyric_api = async (allParagraphs, lyricsId, success, fail) => {
   const token = await localStorage.getItem("userToken");
   if (token === null) {
     console.log("No credentials found, redirecting...");
     window.location = "/login";
     return [];
   }
+  const path = lyricsId == null ? `/api/lyrics/` : `/api/lyrics/${lyricsId}/`;
   const response = await fetch(
-    `/api/store_sheet_rows/`,
+    path,
     {
-      method: 'POST',
+      method: lyricsId == null ? 'POST' : 'PUT',
       headers: {
         'Content-Type': 'Application/JSON',
         'Authorization': `Bearer ${token}`,
       },
-      body: JSON.stringify(json_content)
+      body: JSON.stringify({ allParagraphs })
     }
   );
   const text = await response.text();
@@ -134,7 +134,7 @@ const do_process_csv_file_content = async (json_content, success, fail) => {
     do_token_not_valid();
     return [];
   }
-  if (response.status === 201) {
+  if (response.status === 201 || response.status === 200) {
     console.log("success", JSON.parse(text));
     success(JSON.parse(text));
   } else {
@@ -208,6 +208,36 @@ const get_all_collections_api = async (success) => {
   }
 };
 
+
+const get_lyric_data_api = async (lyric_id, success) => {
+  const token = await localStorage.getItem("userToken");
+  if (token === null) {
+    console.log("No credentials found, redirecting...");
+    window.location = "/login";
+    return [];
+  }
+  const response = await fetch(
+    `/api/lyrics/${lyric_id}/`,
+    {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'Application/JSON',
+        'Authorization': `Bearer ${token}`,
+      }
+    }
+  );
+  const text = await response.text();
+  if (response.status === 401) {
+    do_token_not_valid();
+    return [];
+  }
+  if (response.status === 200) {
+    console.log("success", JSON.parse(text));
+    success(JSON.parse(text));
+  } else {
+    console.log("failed", text);
+  }
+};
 
 const get_spreadsheet_dashboard_api = async (spreadsheetId, success) => {
   const token = await localStorage.getItem("userToken");

@@ -10,11 +10,7 @@ function App() {
   const success = async (text) => {
     await localStorage.setItem("userToken", text.access);
     await localStorage.setItem("loggedInUsername", text.username);
-    if (text.is_admin) {
-      window.location = "/admin-dashboard";
-    } else {
-      window.location = "/collections";
-    }
+    window.location = "/lyrics";
   };
 
   const resendEmail = () => {
@@ -53,7 +49,7 @@ function App() {
   };
 
   if (localStorage.getItem("userToken") != null) {
-    window.location = window.location.origin + "/profile";
+    window.location = window.location.origin + "/lyrics";
   }
 
   // In first div style: boxShadow: "5px 5px 20px #cccccccc",

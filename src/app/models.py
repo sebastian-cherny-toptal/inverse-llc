@@ -25,8 +25,7 @@ class Lyrics(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     name = models.CharField(max_length=100, blank=True)
     date_added = models.DateField()
-    lyrics = models.CharField(max_length=10000, blank=True)
-    collapsedParagraphs = models.JSONField()
+    all_paragraphs = models.JSONField()
 
     def __str__(self):
         return "Spreadsheet {}".format(self.name)

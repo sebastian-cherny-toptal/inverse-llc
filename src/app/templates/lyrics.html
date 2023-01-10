@@ -8,8 +8,14 @@
 </head>
 
 <body>
+  <script>
+    const getLyricsId = () => {
+      return "{{lyrics_id}}";
+    }
+  </script>
   {% include "react_and_bootstrap.html" %}
   <script type="text/jsx" src="/static/api/js/api.js"></script>
+  <script type="text/jsx" src="/static/js/common_code/UserHeader.js"></script>
   <script type="text/jsx" src="/static/js/common_code/utils.js"></script>
   <div id="bigContainer">
     <div id="containerDiv">

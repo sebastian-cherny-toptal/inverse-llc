@@ -14,11 +14,7 @@ function App() {
   const success = async (text) => {
     await localStorage.setItem("userToken", text.access);
     await localStorage.setItem("loggedInUsername", text.username);
-    if (text.is_admin) {
-      window.location = "/admin-dashboard";
-    } else {
-      window.location = "/collections";
-    }
+    window.location = "/lyrics";
   };
 
   const checkIsEmpty = () => {

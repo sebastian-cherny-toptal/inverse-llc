@@ -3,31 +3,31 @@ const e = React.createElement;
 
 
 function App() {
-  const [allColections, setAllColections] = React.useState([]);
-  const [loggedInUsername, setLoggedInUsername] = React.useState(null);
-  const [pageLanguage, setPageLanguage] = React.useState("en");
-  const [showModal, setShowModal] = React.useState(false);
-  const [modalDescription, setModalDescription] = React.useState("");
-  const [spreadsheetId, setSpreadsheetId] = React.useState(null);
-  const [error, setError] = React.useState("");
-  const [collectionName, setCollectionName] = React.useState("");
-  const [fileLoaded, setFileLoaded] = React.useState(false);
-  const [showPermissionsModal, setShowPermissionsModal] = React.useState(false);
-  const [sharedWithEmails, setSharedWithEmails] = React.useState([]);
-  const [newEmailToShare, setNewEmailToShare] = React.useState([]);
+  var loggedInUsername = null;
+  var userInfo = null;
+  var autosaveInterval = null;
+
+  var lyricsId = null;
+  const lyricsIdFromUrl = getLyricsId();
+  console.log(lyricsIdFromUrl);
+  if (lyricsIdFromUrl.length) {
+    lyricsId = lyricsIdFromUrl;
+  }
 
   const success = (data) => {
     //setAllColections(data.data);
   };
 
-  const getData = () => {
-    //getLoggedInUsername((username) => { setLoggedInUsername(username) });
-    //getPageLanguage((lang => { setPageLanguage(lang); }));
-    //get_all_collections_api(success, (text) => { console.log("Error: ", text) });
-  };
-  React.useEffect(() => {
-    getData();
-  }, []);
+  if (loggedInUsername === null) {
+    getLoggedInUsername((username) => { loggedInUsername = username });
+  }
+  if (userInfo === null) {
+
+    get_user_data_api((data) => userInfo = data.data);
+  }
+  //getPageLanguage((lang => { setPageLanguage(lang); }));
+  //get_all_collections_api(success, (text) => { console.log("Error: ", text) });
+
 
   var allParagraphs = [];
   var allEvents = [];
@@ -35,6 +35,7 @@ function App() {
   var leftLineCounter = document.getElementById('leftLineCounter');
   var rightLineCounter = document.getElementById('rightLineCounter');
   var arrowsDiv = document.getElementById('arrowsDiv');
+
 
   const createParagraphObjectFromText = (text) => {
     return {
@@ -80,17 +81,21 @@ function App() {
     lyricsEditor.value = getTextFromParagraphs();
   }
 
-  const getParagraphIndexAndPositionInParagraph = (charPosition) => {
+  const getParagraphIndexAndPositionInParagraph = (charPosition, currentParagraphs) => {
     var charsPassed = 0;
-    for (var i = 0; i < allParagraphs.length; i++) {
-      const p = allParagraphs[i];
+    var thisParagraphs = currentParagraphs;
+    if (thisParagraphs == null) {
+      thisParagraphs = allParagraphs;
+    }
+    for (var i = 0; i < thisParagraphs.length; i++) {
+      const p = thisParagraphs[i];
       const nextPassed = charsPassed + getLengthDisplayed(p);
       if (nextPassed > charPosition) {
         return [i, charPosition - charsPassed];
       }
       charsPassed = nextPassed;
     }
-    return [allParagraphs.length, 0];
+    return [thisParagraphs.length, 0];
   }
 
   const getParagraphsFromUncollapsedText = (completeText) => {
@@ -449,7 +454,7 @@ function App() {
       } else {
         leftLineCounterLines.push('');
         rightLineCounterLines.push('');
-        nxtForRight = 1;
+        nxtForLeft = 1;
       }
 
       const buttonsDiv = document.createElement('div')
@@ -458,7 +463,7 @@ function App() {
       buttonsDiv.style.minHeight = '16px';
       buttonsDiv.style.maxHeight = '16px';
       buttonsDiv.appendChild(getDownArrowButton(i));
-      buttonsDiv.appendChild(getUncountButton(i));
+      // buttonsDiv.appendChild(getUncountButton(i));
       arrowsDiv.appendChild(buttonsDiv);
       var paragraphLinesCount = paragraph.isCollapsed ? 1 : paragraph.text.trimLeft().split('\n').length - 2;
       for (var asd = 0; asd < paragraphLinesCount; asd++) {
@@ -472,14 +477,6 @@ function App() {
     leftLineCounter.value = leftLineCounterLines.join('\n');
     rightLineCounter.value = rightLineCounterLines.join('\n');
     //lineCountCache = lineCount;
-  }
-
-  const getCollapsedParagraphFromText = (t) => {
-    return [t, true];
-  }
-
-  const getUncollapsedParagraphFromText = (t) => {
-    return [t, false];
   }
 
   const getDownArrowButton = (paragraphNum) => {
@@ -503,34 +500,22 @@ function App() {
         document.getElementById(this_btn_id).textContent = '^ ' + paragraphNum;
       }
       setCompleteTextFromParagraphs();
+      setLineNumbersAndButtons();
     }
     return btn;
   }
 
-  const getUncountButton = (paragraphNum) => {
-    const btn = document.createElement('button');
-    btn.textContent = (allParagraphs[paragraphNum].isCounted ? 'uncount ' : 'count ') + paragraphNum;
-    // btn.style.marginTop = '18px';
-    //btn.style.height = '20px';
-    btn.style.color = '#ffffff';
-    btn.style.backgroundColor = '#000000';
-    const this_btn_id = 'is_counted_btn_' + paragraphNum;
-    btn.id = this_btn_id;
-    if (allParagraphs[paragraphNum].text.trimLeft().split('\n').length === 1) {
-      btn.setAttribute('disabled', true);
+  const setCountOrUncount = (paragraphNum) => {
+    // const this_btn_id = 'is_counted_btn_' + paragraphNum;
+    if (allParagraphs[paragraphNum].isCounted === false) {
+      allParagraphs[paragraphNum].isCounted = true;
+      // document.getElementById(this_btn_id).textContent = 'uncount ' + paragraphNum;
+    } else {
+      allParagraphs[paragraphNum].isCounted = false;
+      // document.getElementById(this_btn_id).textContent = 'count ' + paragraphNum;
     }
-    btn.onclick = () => {
-      if (allParagraphs[paragraphNum].isCounted === false) {
-        allParagraphs[paragraphNum].isCounted = true;
-        document.getElementById(this_btn_id).textContent = 'uncount ' + paragraphNum;
-      } else {
-        allParagraphs[paragraphNum].isCounted = false;
-        document.getElementById(this_btn_id).textContent = 'count ' + paragraphNum;
-      }
-      setCompleteTextFromParagraphs();
-      setLineNumbersAndButtons();
-    }
-    return btn;
+    setCompleteTextFromParagraphs();
+    setLineNumbersAndButtons();
   }
 
   const getAllParagraphsFromTextValue = (longText) => {
@@ -560,9 +545,7 @@ function App() {
     if (lastText.length) {
       newParagraphs.push(createParagraphObjectFromText(lastText));
     }
-    allParagraphs = newParagraphs;
-    console.log('after special char');
-    console.log(allParagraphs)
+    return newParagraphs;
   }
 
   if (lyricsEditor != null && leftLineCounter != null) {
@@ -578,29 +561,40 @@ function App() {
 
     });
 
-    leftLineCounter.addEventListener('scroll', () => {
-      lyricsEditor.scrollTop = leftLineCounter.scrollTop;
-      lyricsEditor.scrollLeft = leftLineCounter.scrollLeft;
+    lyricsEditor.addEventListener('select', (e) => {
 
-      rightLineCounter.scrollTop = leftLineCounter.scrollTop;
-      rightLineCounter.scrollLeft = leftLineCounter.scrollLeft;
-
-      arrowsDiv.scrollTop = leftLineCounter.scrollTop;
-      arrowsDiv.scrollLeft = leftLineCounter.scrollLeft;
+      const selectionStart = e.target.selectionStart;
+      const selectionEnd = e.target.selectionEnd;
+      var movingAfterUncollapsing = 0;
+      for (var x = selectionStart; x < selectionEnd; x++) {
+        const [affectedParagraphIndex, positionInParagraph] = getParagraphIndexAndPositionInParagraph(x);
+        if (allParagraphs[affectedParagraphIndex].isCollapsed) {
+          allParagraphs[affectedParagraphIndex].isCollapsed = false;
+          movingAfterUncollapsing += allParagraphs[affectedParagraphIndex].text.length -
+            allParagraphs[affectedParagraphIndex].text.trimLeft().split('\n')[0].length - 2;
+        }
+      }
+      setCompleteTextFromParagraphs();
+      //console.log(selectionStart, selectionEnd);
+      lyricsEditor.selectionStart = selectionStart;
+      lyricsEditor.selectionEnd = selectionEnd + movingAfterUncollapsing;
 
     });
 
+    var previousStart, previousEnd;
 
     lyricsEditor.addEventListener('keydown', (e) => {
       var pressedKeyCode = e.keyCode;
       var pressedChar = e.key;
       const isCtrlPressed = e.metaKey || e.ctrlKey;
       let { value, selectionStart, selectionEnd } = lyricsEditor;
+      /*
       if (pressedKeyCode === 9) {  // TAB = 9
         e.preventDefault();
         lyricsEditor.value = value.slice(0, selectionStart) + '\t' + value.slice(selectionEnd);
         lyricsEditor.setSelectionRange(selectionStart + 1, selectionStart + 1);
       }
+      */
       var charToAdd = pressedChar;
 
       /*
@@ -632,10 +626,50 @@ function App() {
       } else if (charToAdd === 'Tab') {
         charToAdd = '\t';
       }
+      console.log(e);
       var textEvent;
+      var prevented = false;
       if (isCtrlPressed) {
+        if (charToAdd.toLocaleLowerCase() === 'v') {
+          alert('No pasting allowed');
+          e.preventDefault();
+        } else if (charToAdd.toLocaleLowerCase() === 'j') {
+          console.log(getParagraphIndexAndPositionInParagraph(selectionStart));
+          console.log(getParagraphIndexAndPositionInParagraph(selectionEnd));
+          for (var idx = getParagraphIndexAndPositionInParagraph(selectionStart)[0];
+            idx <= getParagraphIndexAndPositionInParagraph(selectionEnd)[0];
+            idx++) {
+            if (idx < allParagraphs.length) {
+              setCountOrUncount(idx);
+            } else if (idx === allParagraphs.length && selectionStart === selectionEnd) {
+              setCountOrUncount(idx - 1);
+            }
+          }
+          //const [affectedIndex, pos] = getParagraphIndexAndPositionInParagraph(selectionStart);
+          e.preventDefault();
+        }
       } else {
         if (charToAdd.length === 1) {
+          for (var idx = selectionStart; idx <= selectionEnd; idx++) {
+            const [affectedParagraphIndex, positionInParagraph] = getParagraphIndexAndPositionInParagraph(idx);
+            if (affectedParagraphIndex < allParagraphs.length) {
+              if (allParagraphs[affectedParagraphIndex].isCollapsed) {
+                e.preventDefault();
+                prevented = true;
+                alert("You are going to edit a collapsed paragraph (position " + (affectedParagraphIndex + 1) + "). Uncollapse and then edit.");
+                break;
+              } else if (
+                positionInParagraph === allParagraphs[affectedParagraphIndex].text.length - 1 &&
+                affectedParagraphIndex + 1 < allParagraphs.length &&
+                allParagraphs[affectedParagraphIndex + 1].isCollapsed
+              ) {
+                e.preventDefault();
+                prevented = true;
+                alert("You are going to merge a collapsed paragraph (position " + (affectedParagraphIndex + 1) + "). Uncollapse and then edit.");
+                break;
+              }
+            }
+          }
           if (selectionStart === selectionEnd) {
             textEvent = ['typing', selectionStart, charToAdd];
           } else {
@@ -647,27 +681,115 @@ function App() {
           //setLineNumbersAndButtons();
         } else {
         }
+        if (!prevented) {
+          previousStart = selectionStart;
+          previousEnd = selectionEnd;
+        }
       }
     });
 
     lyricsEditor.addEventListener('input', () => {
-      getAllParagraphsFromTextValue(lyricsEditor.value);
-      console.log('done')
+      var newParagraphs = getAllParagraphsFromTextValue(lyricsEditor.value);
+      if (newParagraphs.length === allParagraphs.length) {
+        for (var i = 0; i < allParagraphs.length; i++) {
+          newParagraphs[i].isCounted = allParagraphs[i].isCounted;
+          if (allParagraphs[i].isCollapsed) {
+            newParagraphs[i].isCollapsed = allParagraphs[i].isCollapsed;
+            newParagraphs[i].text = allParagraphs[i].text;
+          }
+        }
+      } else if (previousStart === previousEnd) {
+        const [idx, pos] = getParagraphIndexAndPositionInParagraph(previousStart, newParagraphs);
+        console.log('index ' + idx);
+        console.log('pos ' + pos);
+        console.log(previousStart);
+        for (var i = 0; i < idx; i++) {
+          newParagraphs[i].isCounted = allParagraphs[i].isCounted;
+          if (allParagraphs[i].isCollapsed) {
+            newParagraphs[i].isCollapsed = allParagraphs[i].isCollapsed;
+            newParagraphs[i].text = allParagraphs[i].text;
+          }
+        }
+        for (var i = idx + 1; i < Math.max(newParagraphs.length, allParagraphs.length); i++) {
+          var prevCount, newCount;
+          if (allParagraphs.length < newParagraphs.length) {
+            prevCount = i - 1;
+            newCount = i;
+          } else {
+            prevCount = i;
+            newCount = i - 1;
+          }
+          console.log('prev ' + prevCount + ' matched with ' + newCount);
+          newParagraphs[newCount].isCounted = allParagraphs[prevCount].isCounted;
+          if (allParagraphs[prevCount].isCollapsed) {
+            newParagraphs[newCount].isCollapsed = allParagraphs[prevCount].isCollapsed;
+            newParagraphs[newCount].text = allParagraphs[prevCount].text;
+          }
+        }
+      }
+      allParagraphs = newParagraphs;
+      console.log('done');
       console.log(allParagraphs);
       setLineNumbersAndButtons();
     });
   }
 
+  const doAutosave = () => {
+    document.getElementById('lastAutoSaveLabel').textContent = '...';
+    store_lyric_api(allParagraphs, lyricsId, (data) => {
+      setTimeout(() => {
+        const d = new Date();
+        document.getElementById('lastAutoSaveLabel').textContent = d.toString();
+      }, 1000)
+    });
+  }
+
+  if (lyricsIdFromUrl) {
+    get_lyric_data_api(lyricsIdFromUrl, (data) => {
+      allParagraphs = data.data.allParagraphs;
+      setCompleteTextFromParagraphs();
+      setLineNumbersAndButtons();
+    })
+  }
+
 
   return (
     <div>
+      <UserHeader loggedInUsername={loggedInUsername} redirectWhenLoggedOut={true}
+        is_admin={userInfo && userInfo.is_admin} pageLanguage='en'
+
+      />
       <div style={{
         maxWidth: "800px", margin: "auto", marginTop: "1em", marginBottom: "1em",
         padding: "1em", borderRadius: "1%", border: "1px solid"
       }}>
         <div>
-          <button className="btn btn-primary" onClick={() => { }}
-            style={{ marginBottom: "1em", backgroundColor: "#000000", borderColor: "#000000" }}>Save lyrics</button>
+          <button className="btn btn-primary" onClick={() => {
+            store_lyric_api(allParagraphs, lyricsId, (data) => {
+              lyricsId = data.data.id;
+              const d = new Date();
+              document.getElementById('lastAutoSaveLabel').textContent = (d).toString();
+              if (lyricsIdFromUrl.length === 0) {
+                document.getElementById('lyricsLink').href = '/lyrics/' + lyricsId;
+                document.getElementById('lyricsLink').style.display = 'block';
+              }
+              if (autosaveInterval != null) {
+                clearInterval(autosaveInterval);
+              }
+              autosaveInterval = setInterval(doAutosave, 1000 * 60);
+            })
+          }}
+            style={{ marginBottom: "1em", color: "#dddddd", backgroundColor: "#000000", borderColor: "#000000" }}>Save lyrics</button>
+          <br />
+          <label>Autosaved:
+          </label>
+          <label id='lastAutoSaveLabel'>
+            disabled
+          </label>
+          <br />
+          <label>Shortcut: (Command or Ctrl) + J -{'>'} selected paragraphs go out of the count</label>
+          <br />
+          <a id='lyricsLink' style={{ display: 'none' }}>Go to this song</a>
         </div>
 
       </div>

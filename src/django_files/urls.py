@@ -16,7 +16,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from app.custom_serializer import CustomAuthToken
-from app.all_views import views_user
+from app.all_views import views_user, views_lyrics
 from app import views
 from django_files import settings
 from django.conf.urls.static import static
@@ -31,11 +31,22 @@ urlpatterns = [
     path('register/', views.register_view),
     path('api/register/', views_user.register_user),
     path('api/validate/', views_user.validate_user),
+    path('welcome/<str:random_str>/', views.welcome),
+
     path('api/send_mail/', views_user.resend_mail),
     path('api/user_info/', views_user.user_info),
     path('api/token/', CustomAuthToken.as_view()),
     path('favicon.ico/', favicon_view),
     path('', views.lyrics_view),
     path('login/', views.login_view),
+    path('profile/', views.profile_view),
+
     path('lyrics/', views.lyrics_view),
+    path('lyrics/<int:lyric_id>/', views.lyrics_view),
+
+    path('api/lyrics/', views_lyrics.lyrics),
+    path('api/lyrics/<int:lyric_id>/', views_lyrics.lyric),
+
+
+
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
