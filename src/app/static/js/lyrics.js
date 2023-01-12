@@ -480,6 +480,24 @@ function App() {
     //lineCountCache = lineCount;
   }
 
+  const doCollapse = (paragraphNum) => {
+    if (allParagraphs[paragraphNum].isCollapsed === false) {
+      if (allParagraphs[paragraphNum].text[allParagraphs[paragraphNum].text.length - 1]) {
+        allParagraphs[paragraphNum].text += '\n';
+      }
+      if (allParagraphs[paragraphNum].text[allParagraphs[paragraphNum].text.length - 2]) {
+        allParagraphs[paragraphNum].text += '\n';
+      }
+      allParagraphs[paragraphNum].isCollapsed = true;
+      document.getElementById(this_btn_id).textContent = 'v ' + this_btn_id.split('_')[2];
+    } else {
+      allParagraphs[paragraphNum].isCollapsed = false;
+      document.getElementById(this_btn_id).textContent = '^ ' + paragraphNum;
+    }
+    setCompleteTextFromParagraphs('source2');
+    setLineNumbersAndButtons();
+  }
+
   const getDownArrowButton = (paragraphNum) => {
     const btn = document.createElement('button');
     btn.textContent = (allParagraphs[paragraphNum].isCollapsed === false ? '^ ' : 'v ') + paragraphNum;
@@ -493,15 +511,7 @@ function App() {
       btn.setAttribute('disabled', true);
     }
     btn.onclick = () => {
-      if (allParagraphs[paragraphNum].isCollapsed === false) {
-        allParagraphs[paragraphNum].isCollapsed = true;
-        document.getElementById(this_btn_id).textContent = 'v ' + this_btn_id.split('_')[2];
-      } else {
-        allParagraphs[paragraphNum].isCollapsed = false;
-        document.getElementById(this_btn_id).textContent = '^ ' + paragraphNum;
-      }
-      setCompleteTextFromParagraphs('source2');
-      setLineNumbersAndButtons();
+      doCollapse(paragraphNum);
     }
     return btn;
   }
