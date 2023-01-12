@@ -481,6 +481,7 @@ function App() {
   }
 
   const doCollapse = (paragraphNum) => {
+    const this_btn_id = 'arrow_btn_' + paragraphNum;
     if (allParagraphs[paragraphNum].isCollapsed === false) {
       if (allParagraphs[paragraphNum].text[allParagraphs[paragraphNum].text.length - 1]) {
         allParagraphs[paragraphNum].text += '\n';
