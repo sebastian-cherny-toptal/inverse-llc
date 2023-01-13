@@ -483,10 +483,10 @@ function App() {
   const doCollapse = (paragraphNum) => {
     const this_btn_id = 'arrow_btn_' + paragraphNum;
     if (allParagraphs[paragraphNum].isCollapsed === false) {
-      if (allParagraphs[paragraphNum].text[allParagraphs[paragraphNum].text.length - 1]) {
+      if (allParagraphs[paragraphNum].text[allParagraphs[paragraphNum].text.length - 1] != '\n') {
         allParagraphs[paragraphNum].text += '\n';
       }
-      if (allParagraphs[paragraphNum].text[allParagraphs[paragraphNum].text.length - 2]) {
+      if (allParagraphs[paragraphNum].text[allParagraphs[paragraphNum].text.length - 2] != '\n') {
         allParagraphs[paragraphNum].text += '\n';
       }
       allParagraphs[paragraphNum].isCollapsed = true;
