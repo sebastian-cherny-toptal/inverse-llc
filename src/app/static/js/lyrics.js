@@ -667,7 +667,7 @@ function App() {
           e.preventDefault();
         }
       } else {
-        if (charToAdd.length === 1) {
+        if (charToAdd.length === 1 || charToAdd === 'Backspace') {
           for (var idx = selectionStart; idx <= selectionEnd; idx++) {
             const [affectedParagraphIndex, positionInParagraph] = getParagraphIndexAndPositionInParagraph(idx);
             if (affectedParagraphIndex < allParagraphs.length) {
