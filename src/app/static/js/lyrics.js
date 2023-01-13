@@ -585,7 +585,7 @@ function App() {
       var oneCollapsed = false;
       for (var x = selectionStart; x < selectionEnd; x++) {
         const [affectedParagraphIndex, positionInParagraph] = getParagraphIndexAndPositionInParagraph(x);
-        if (allParagraphs[affectedParagraphIndex].isCollapsed) {
+        if (affectedParagraphIndex < allParagraphs.length && allParagraphs[affectedParagraphIndex].isCollapsed) {
           oneCollapsed = true;
           allParagraphs[affectedParagraphIndex].isCollapsed = false;
           movingAfterUncollapsing += allParagraphs[affectedParagraphIndex].text.length -
@@ -685,15 +685,15 @@ function App() {
                 prevented = true;
                 alert("You are going to merge a collapsed paragraph (position " + (affectedParagraphIndex + 1) + "). Uncollapse and then edit.");
                 break;
+              } else if (affectedParagraphIndex > 0 && charToAdd === 'Backspace' &&
+                positionInParagraph === 0
+                && (allParagraphs[affectedParagraphIndex].isCollapsed || allParagraphs[affectedParagraphIndex - 1].isCollapsed)
+              ) {
+                e.preventDefault();
+                prevented = true;
+                alert("You are going to merge a collapsed paragraph (position " + (affectedParagraphIndex) + "). Uncollapse and then edit.");
+                break;
               }
-            } else if (affectedParagraphIndex > 0 && charToAdd === 'Backspace' &&
-              positionInParagraph === 0
-              && (allParagraphs[affectedParagraphIndex].isCollapsed || allParagraphs[affectedParagraphIndex - 1].isCollapsed)
-            ) {
-              e.preventDefault();
-              prevented = true;
-              alert("You are going to merge a collapsed paragraph (position " + (affectedParagraphIndex) + "). Uncollapse and then edit.");
-              break;
             }
           }
           if (selectionStart === selectionEnd) {
