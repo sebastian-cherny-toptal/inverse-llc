@@ -686,6 +686,14 @@ function App() {
                 alert("You are going to merge a collapsed paragraph (position " + (affectedParagraphIndex + 1) + "). Uncollapse and then edit.");
                 break;
               }
+            } else if (affectedParagraphIndex > 0 && charToAdd === 'Backspace' &&
+              positionInParagraph === 0
+              && (allParagraphs[affectedParagraphIndex].isCollapsed || allParagraphs[affectedParagraphIndex - 1].isCollapsed)
+            ) {
+              e.preventDefault();
+              prevented = true;
+              alert("You are going to merge a collapsed paragraph (position " + (affectedParagraphIndex) + "). Uncollapse and then edit.");
+              break;
             }
           }
           if (selectionStart === selectionEnd) {
